@@ -3,15 +3,19 @@ import SongForm from "./SongForm";
 import SongDetails from "./SongDetails";
 import Loader from "./Loader";
 import { helpHttp } from "../helpers/helpHttp";
+import { HashRouter, Link, Route, Routes } from "react-router-dom";
+import { Error404 } from "../pages/Error404";
+import SongTable from "./SongTable";
+import SongPage from "./SongPage";
 
-// ⚛️ API LyricsOvh - https://lyricsovh.docs.apiary.io/
-// ⚛️ API TheAudioDB - https://theaudiodb.com/api_guide.php
+let mySongsInit = JSON.parse(localStorage.getItem("mySongs")) || [];
 
 export default function SongSearch() {
   const [search, setSearch] = useState(null);
   const [lyric, setLyric] = useState(null);
   const [bio, setBio] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [mySongs, setMySongs] = useState(mySongsInit);
 
   useEffect(() => {
     if (search === null) return;
@@ -36,22 +40,78 @@ export default function SongSearch() {
     };
 
     fecthData();
-  }, [search]);
+    localStorage.setItem("mySongs", JSON.stringify(mySongs));
+  }, [search, mySongs]);
 
   const handleSearch = (data) => {
     setSearch(data);
   };
 
+  const handleSaveSong = () => {
+    //alert("Salvando canción en Favoritos");
+    let currentSong = {
+      search,
+      lyric,
+      bio,
+    };
+
+    let songs = [...mySongs, currentSong];
+    setMySongs(songs);
+    setSearch(null);
+    localStorage.setItem("mySongs", JSON.stringify(songs));
+  };
+  const handleDeleteSong = (id) => {
+    //alert(`Eliminando canción con el id: ${id}`);
+    let isDelete = window.confirm(
+      `¿Estás seguro de eliminar la canción con el id "${id}"`
+    );
+
+    if (isDelete) {
+      let songs = mySongs.filter((el, index) => index !== id);
+      setMySongs(songs);
+      localStorage.setItem("mySongs", JSON.stringify(songs));
+    }
+  };
+
   return (
     <div>
-      <h2>Song Search</h2>
-      <article className="grid-1-3">
-        <SongForm handleSearch={handleSearch} />
+      <HashRouter>
+        {/* basename="/canciones" */}
+
+        <header>
+          <h2>Song Search</h2>
+          <Link to="/canciones">Home</Link>
+        </header>
         {loading && <Loader />}
-        {search && !loading && (
-          <SongDetails bio={bio} lyric={lyric} search={search} />
-        )}
-      </article>
+        <article className="grid-1-2">
+          <Routes>
+            <Route
+              path="/canciones"
+              element={
+                <>
+                  <SongForm
+                    handleSearch={handleSearch}
+                    handleSaveSong={handleSaveSong}
+                  />
+                  <SongTable
+                    mySongs={mySongs}
+                    handleDeleteSong={handleDeleteSong}
+                  />
+                  {search && !loading && (
+                    <SongDetails bio={bio} lyric={lyric} search={search} />
+                  )}
+                </>
+              }
+            />
+            <Route
+              path="/canciones/:id"
+              element={<SongPage mySongs={mySongs} />}
+            />
+            {/* <Route path="/canciones/eliminar" element={<Agregar />} /> */}
+            <Route path="*" element={<Error404 />} />
+          </Routes>
+        </article>
+      </HashRouter>
     </div>
   );
 }

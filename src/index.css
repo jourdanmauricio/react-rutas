@@ -46,6 +46,7 @@ textarea {
 }
 
 button,
+input[type="button"],
 input[type="submit"],
 input[type="reset"] {
   border: thin solid #444;
@@ -63,6 +64,13 @@ input[type="reset"] {
   text-align: center;
   vertical-align: middle;
   cursor: pointer;
+}
+
+input[type="button"]:disabled {
+  border-color: rgba(118,118,1118,.3);
+  color: rgba(16,16,16,.3);
+  background-color: rgba(239,239,239,.3);
+  cursor: default;
 }
 
 form {
