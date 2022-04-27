@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Acerca from "../pages/Acerca";
 import Contacto from "../pages/Contacto";
 import { Error404 } from "../pages/Error404";
@@ -21,6 +26,8 @@ const ConceptosBasicos = () => {
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/usuario/:username" element={<Usuario />} />
           <Route path="/productos" element={<Productos />} />
+          <Route path="/about" element={<Navigate to="/acerca" />} />
+          <Route path="/contact" element={<Navigate to="/contacto" />} />
           <Route path="*" element={<Error404 />} />
         </Routes>
       </Router>
